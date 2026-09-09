@@ -1,6 +1,7 @@
 package com.asim.curdSpringBootDemo.Controller;
 
 import com.asim.curdSpringBootDemo.Service.StudentService;
+import com.asim.curdSpringBootDemo.dto.StudentRequestDto;
 import com.asim.curdSpringBootDemo.entity.Student;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,11 @@ public class StudentController {
 
     //create
     @PostMapping("/create")
-    public ResponseEntity<Student> createStudent(@RequestBody Student student){
-        Student createdStudent = studentService.createStudent(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
+    public ResponseEntity<Student> createStudent(@RequestBody StudentRequestDto studentRequestDto){
+       Student student = studentService.createStudent(studentRequestDto);
+       return ResponseEntity
+               .status(HttpStatus.CREATED)
+               .body(student);
     }
 
     //read for db
@@ -67,5 +70,13 @@ public class StudentController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok("Record deleted");
+    }
+
+    @PatchMapping("/delete-soft/{id}")
+    public ResponseEntity<String> deleteStudentSoftly(@PathVariable Long id){
+       Boolean isDeleted = studentService.deleteStudentSoftly(id);
+       if(!isDeleted) return ResponseEntity.notFound().build();
+
+       return ResponseEntity.ok("Deleted Softly");
     }
 }

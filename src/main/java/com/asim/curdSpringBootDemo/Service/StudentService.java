@@ -1,10 +1,13 @@
 package com.asim.curdSpringBootDemo.Service;
 
+import com.asim.curdSpringBootDemo.dto.StudentRequestDto;
+import com.asim.curdSpringBootDemo.dto.StudentResponseDTO;
 import com.asim.curdSpringBootDemo.entity.Student;
 import com.asim.curdSpringBootDemo.repository.StudentRepostiroy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -22,18 +25,18 @@ public class StudentService {
         this.studentRepostiroy = studentRepostiroy;
     }
 
-    public Student createStudent(Student studentReq){
-        // have to write business logic
-        //store to db but service ka kaam hai repositry ko bataye ki db me save karo;
 
-        Student student = studentRepostiroy.save(studentReq);
 
-        return student;
+    public StudentResponseDTO createStudent(StudentRequestDto studentRequestDto){
+       Student student = mapToEntity(studentRequestDto);
+       Student studentResp = studentRepostiroy.save(student);
+
+       return mapToDto(studentResp);
     }
 
     public Student readStudent(Long id){
         //optional ka matlab value ho bhi sakta hai
-        Optional<Student> student1 = studentRepostiroy.findById(id);
+        Optional<Student> student1 = studentRepostiroy.findByIdAndDeletedIsFalse(id);
         if(student1.isPresent()){
             return student1.get();
         }
@@ -41,12 +44,12 @@ public class StudentService {
     }
 
     public List<Student> readAllStudent(){
-        List<Student> studentList = studentRepostiroy.findAll();
+        List<Student> studentList = studentRepostiroy.findByDeletedIsFalse();
         return studentList;
     }
 
     public Student updateStudent(Long id, @RequestBody Student student){
-        Optional<Student> studentResp = studentRepostiroy.findById(id);
+        Optional<Student> studentResp = studentRepostiroy.findByIdAndDeletedIsFalse(id);
         if(studentResp.isEmpty())return null;
 
         Student studentToSave = studentResp.get();
@@ -55,6 +58,7 @@ public class StudentService {
         studentToSave.setEmail(student.getEmail());
         studentToSave.setName(student.getName());
         studentToSave.setSubject(student.getSubject());
+        studentToSave.setDeleted(false);
         return studentRepostiroy.save(studentToSave);
     }
 
@@ -66,4 +70,37 @@ public class StudentService {
         return true;
     }
 
+    public Boolean deleteStudentSoftly(Long id){
+        Optional<Student> student1 = studentRepostiroy.findByIdAndDeletedIsFalse(id);
+        if(student1.isEmpty()) return false;
+
+        Student studentToSave = student1.get();
+        studentToSave.setDeleted(true);
+        studentRepostiroy.save(studentToSave);
+        return true;
+    }
+
+    private Student mapToEntity(StudentRequestDto studentRequestDto){
+        Student student = new Student();
+        student.setName(studentRequestDto.getName());
+        student.setAge(studentRequestDto.getAge());
+        student.setEmail(studentRequestDto.getEmail());
+        student.setRollNo(studentRequestDto.getRollNo());
+        student.setSubject(studentRequestDto.getSubject());
+        student.setDeleted(false);
+
+        return student;
+    }
+
+    private StudentResponseDTO mapToDto(Student student){
+        StudentResponseDTO studentResponseDTO = new StudentResponseDTO();
+        studentResponseDTO.setId(student.getId());
+        studentResponseDTO.setName(student.getName());
+        studentResponseDTO.setAge(student.getAge());
+        studentResponseDTO.setEmail(student.getEmail());
+        studentResponseDTO.setRollNo(student.getRollNo());
+        studentResponseDTO.setSubject(student.getSubject());
+        studentResponseDTO.setMessage("Response done");
+        return studentResponseDTO;
+    }
 }
