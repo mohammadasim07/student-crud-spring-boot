@@ -1,11 +1,13 @@
 package com.asim.curdSpringBootDemo.Controller;
 
 import com.asim.curdSpringBootDemo.Service.StudentService;
-import com.asim.curdSpringBootDemo.dto.StudentRequestDto;
+import com.asim.curdSpringBootDemo.dto.CreateStudentRequestDto;
+import com.asim.curdSpringBootDemo.dto.CreateStudentResponseDTO;
+import com.asim.curdSpringBootDemo.dto.updateStudentRequestDto;
+import com.asim.curdSpringBootDemo.dto.updateStudentResponesDto;
 import com.asim.curdSpringBootDemo.entity.Student;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/students")
 public class StudentController {
+
 
     private StudentService studentService;
 
@@ -22,11 +25,13 @@ public class StudentController {
 
     //create
     @PostMapping("/create")
-    public ResponseEntity<Student> createStudent(@RequestBody StudentRequestDto studentRequestDto){
-       Student student = studentService.createStudent(studentRequestDto);
-       return ResponseEntity
-               .status(HttpStatus.CREATED)
-               .body(student);
+    public ResponseEntity<CreateStudentResponseDTO> createStudent(@RequestBody CreateStudentRequestDto studentRequestDto){
+        CreateStudentResponseDTO student =
+                studentService.createStudent(studentRequestDto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(student);
     }
 
     //read for db
@@ -53,11 +58,14 @@ public class StudentController {
                 .body(readStudentList);
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student){
-        Student readStudent = studentService.updateStudent(id, student);
-        if(readStudent == null){
+    public ResponseEntity<updateStudentResponesDto> updateStudent(@PathVariable Long id, @RequestBody updateStudentRequestDto updateRequestDto){
+        updateStudentResponesDto readStudent =
+                studentService.updateStudent(id, updateRequestDto);
+
+        if (readStudent == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(readStudent);
