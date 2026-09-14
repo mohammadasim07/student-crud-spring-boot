@@ -1,11 +1,26 @@
 package com.asim.curdSpringBootDemo.dto;
 
 
+import jakarta.validation.constraints.*;
+
 public class CreateStudentRequestDto {
+
+    @NotBlank(message = "Name not be NULL/Empty or blank")
+    @Size(min = 2,max = 50, message = "Student must be under 2-50 character")
     private String name ;
+
+    @Email
     private String email ;
-    private int age ;
-    private int rollNo;
+
+    @NotNull(message = "Age is required")
+    @Min(value = 18, message = "Age must be greater than 18")
+    private Integer age ;
+
+    @NotNull()
+    private Integer rollNo;
+
+    @NotBlank(message = "Subject is NULL/empty or blank")
+    @Size(min = 3,max = 50)
     private String subject;
 
     public String getName() {
